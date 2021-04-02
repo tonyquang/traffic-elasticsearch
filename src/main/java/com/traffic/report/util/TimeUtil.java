@@ -9,7 +9,7 @@ import java.util.TimeZone;
 
 @Component
 public class TimeUtil {
-    private final String TIME_FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    private final static String TIME_FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     public Date getDateFromString(String strDate){
         SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT_PATTERN);

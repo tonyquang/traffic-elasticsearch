@@ -9,6 +9,8 @@ import org.springframework.data.elasticsearch.client.RestClients;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
+import javax.sql.DataSource;
+import com.quan12yt.demo.CommonDataSource;
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "com.traffic.monitor.repository")
 public class AppConfiguration {
@@ -18,9 +20,6 @@ public class AppConfiguration {
 
     @Value("${elasticsearch.port}")
     private int esPort;
-
-    @Value("${elasticsearch.clustername}")
-    private String esClusterName;
 
     @Bean
     public RestHighLevelClient restHighLevelClient() {
@@ -33,5 +32,10 @@ public class AppConfiguration {
     @Bean
     public ElasticsearchRestTemplate elasticsearchTemplate() {
         return new ElasticsearchRestTemplate(restHighLevelClient());
+    }
+
+    @Bean
+    public DataSource dataSource(){
+        return CommonDataSource.getHikariDataSource();
     }
 }

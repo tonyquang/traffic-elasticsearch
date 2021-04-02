@@ -29,7 +29,7 @@ public class TrafficInfoRepositoryImp implements TrafficInfoRepository{
     @Autowired
     private ObjectMapper objectMapper;
 
-    private final static String INDEX = "network_packet";
+    static private final String INDEX = "network_packet";
 
     @Override
     public List<TrafficInfo> findTrafficInfo(String userId, String hostName, String date) {
@@ -78,7 +78,6 @@ public class TrafficInfoRepositoryImp implements TrafficInfoRepository{
             boolean succeeded = clearScrollResponse.isSucceeded();
             log.info("Scroll findByUserIDHostName status: "+String.valueOf(succeeded));
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         trafficsInfo.removeIf(t -> t.getUrl().trim().isEmpty());

@@ -11,7 +11,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ErrorRespone {
+public class ErrorResponse {
 
     private int statusCode;
     private String message;

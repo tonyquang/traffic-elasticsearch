@@ -1,6 +1,6 @@
 package com.traffic.report.exception;
 
-import com.traffic.report.dto.ErrorRespone;
+import com.traffic.report.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -14,8 +14,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ElasticsearchQueryException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorRespone elasticsearchQueryException(ElasticsearchQueryException ex, WebRequest webRequest){
-        return ErrorRespone.builder()
+    public ErrorResponse elasticsearchQueryException(ElasticsearchQueryException ex, WebRequest webRequest){
+        return ErrorResponse.builder()
                 .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .message(ex.getMessage())
                 .timestamp(new Date())
@@ -24,9 +24,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidInputException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorRespone invalidInputException(InvalidInputException ex, WebRequest webRequest){
-        return ErrorRespone.builder()
+    public ErrorResponse invalidInputException(InvalidInputException ex, WebRequest webRequest){
+        return ErrorResponse.builder()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .timestamp(new Date())
+                .description(webRequest.getDescription(false)).build();
+    }
+
+    @ExceptionHandler(JwtException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse jwtException(JwtException ex, WebRequest webRequest){
+        return ErrorResponse.builder()
+                .statusCode(HttpStatus.FORBIDDEN.value())
                 .message(ex.getMessage())
                 .timestamp(new Date())
                 .description(webRequest.getDescription(false)).build();

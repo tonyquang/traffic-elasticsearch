@@ -17,7 +17,7 @@ public class TrafficInfo {
     private String id;
 
     @JsonProperty("user_id")
-    private String user_id;
+    private String userid;
 
     @JsonProperty("url")
     private String url;

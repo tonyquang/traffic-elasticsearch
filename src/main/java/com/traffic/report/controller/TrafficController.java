@@ -32,7 +32,7 @@ public class TrafficController {
         try {
             Map<String, Integer> trafficMap = new LinkedHashMap<>();
             Map<String, List<Traffic>> trafficMapGroupedByHour = trafficService.getAllTrafficAnUserGroupByHour(userid, hostName, date);
-            List<String> hourSorted =new ArrayList(trafficMapGroupedByHour.keySet());
+            List<String> hourSorted = new ArrayList<>(trafficMapGroupedByHour.keySet());
             Collections.sort(hourSorted);
             for (int i = 7; i < 23; i++){
                 String hour = String.valueOf(i);

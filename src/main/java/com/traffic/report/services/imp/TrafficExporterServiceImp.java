@@ -40,7 +40,7 @@ public class TrafficExporterServiceImp implements TrafficExporterService {
         fontTitle.setFontHeight(20);
         styleTitle.setFont(fontTitle);
 
-        createCell(title, 0, String.format("Traffic Report of %s", trafficsInfo.get(0).getUser_id()), styleTitle);
+        createCell(title, 0, String.format("Traffic Report of %s", trafficsInfo.get(0).getUserid()), styleTitle);
 
         Row row = sheet.createRow(1);
 
@@ -55,7 +55,6 @@ public class TrafficExporterServiceImp implements TrafficExporterService {
     }
 
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
-        //sheet.autoSizeColumn(columnCount);
         Cell cell = row.createCell(columnCount);
         if (value instanceof Integer) {
             cell.setCellValue((Integer) value);
@@ -76,8 +75,8 @@ public class TrafficExporterServiceImp implements TrafficExporterService {
         style.setFont(font);
 
         for (TrafficInfo trafficInfo : trafficsInfo) {
-            Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
+            Row row = sheet.createRow(rowCount++);
             createCell(row, columnCount++, trafficInfo.getUrl(), style);
             createCell(row, columnCount++, trafficInfo.getLocaldate(), style);
         }

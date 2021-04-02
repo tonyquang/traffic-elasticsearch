@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="ISO-8859-1"/>
+    <title>PIE</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+
+    <!-- Optional theme -->
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"/>
+
+</head>
+<body>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+
+<figure class="highcharts-figure">
+    <div id="container"></div>
+<!--    <p class="highcharts-description">-->
+<!--        This chart shows how data labels can be added to the data series. This-->
+<!--        can increase readability and comprehension for small datasets.-->
+<!--    </p>-->
+</figure>
+<script th:inline="javascript">
+			Highcharts.chart('container', {
+			  chart: {
+				type: 'line'
+			  },
+			  title: {
+				text: 'Traffic Chart Of ' + [[${userid}]]
+			  },
+			  subtitle: {
+				text: 'Date: '+ [[${date}]]
+			  },
+			  xAxis: {
+				 categories: [[${trafficMap.keySet()}]],
+                 crosshair: true
+			  },
+			  yAxis: {
+				title: {
+				  text: 'Number of hits'
+				}
+			  },
+			  plotOptions: {
+				line: {
+				  dataLabels: {
+					enabled: true
+				  },
+				  enableMouseTracking: false
+				}
+			  },
+			  series: [{
+                    name: 'Traffic',
+                    data: [[${trafficMap.values()}]]
+                }]
+			});
+</script>
+</body>
+</html>

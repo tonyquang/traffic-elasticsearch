@@ -1,4 +1,4 @@
-package com.traffic.monitor;
+package com.traffic.report;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

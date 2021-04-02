@@ -1,4 +1,4 @@
-package com.traffic.monitor.exception;
+package com.traffic.report.exception;
 
 public class ElasticsearchQueryException extends RuntimeException {
 

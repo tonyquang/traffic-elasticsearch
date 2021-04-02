@@ -1,4 +1,4 @@
-package com.traffic.monitor.configuration;
+package com.traffic.report.configuration;
 
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +11,7 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "com.traffic.monitor.repository")
-public class ElasticSearchConfig {
+public class AppConfiguration {
 
     @Value("${elasticsearch.host}")
     private String esHost;
@@ -34,5 +34,4 @@ public class ElasticSearchConfig {
     public ElasticsearchRestTemplate elasticsearchTemplate() {
         return new ElasticsearchRestTemplate(restHighLevelClient());
     }
-
 }

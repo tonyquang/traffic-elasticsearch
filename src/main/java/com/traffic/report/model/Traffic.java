@@ -1,4 +1,4 @@
-package com.traffic.monitor.model;
+package com.traffic.report.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

@@ -1,7 +1,7 @@
-package com.traffic.monitor.dto;
+package com.traffic.report.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.traffic.monitor.model.Traffic;
+import com.traffic.report.model.Traffic;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

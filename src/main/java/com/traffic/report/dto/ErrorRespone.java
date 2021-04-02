@@ -1,4 +1,4 @@
-package com.traffic.monitor.dto;
+package com.traffic.report.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

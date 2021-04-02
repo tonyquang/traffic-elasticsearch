@@ -1,6 +1,6 @@
-package com.traffic.monitor.exception;
+package com.traffic.report.exception;
 
-import com.traffic.monitor.dto.ErrorRespone;
+import com.traffic.report.dto.ErrorRespone;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -17,6 +17,16 @@ public class GlobalExceptionHandler {
     public ErrorRespone elasticsearchQueryException(ElasticsearchQueryException ex, WebRequest webRequest){
         return ErrorRespone.builder()
                 .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .message(ex.getMessage())
+                .timestamp(new Date())
+                .description(webRequest.getDescription(false)).build();
+    }
+
+    @ExceptionHandler(InvalidInputException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorRespone invalidInputException(InvalidInputException ex, WebRequest webRequest){
+        return ErrorRespone.builder()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
                 .message(ex.getMessage())
                 .timestamp(new Date())
                 .description(webRequest.getDescription(false)).build();

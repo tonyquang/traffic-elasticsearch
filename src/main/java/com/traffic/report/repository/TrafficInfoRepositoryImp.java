@@ -1,7 +1,7 @@
-package com.traffic.monitor.repository;
+package com.traffic.report.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.traffic.monitor.model.TrafficInfo;
+import com.traffic.report.model.TrafficInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.*;
 import org.elasticsearch.client.RequestOptions;
@@ -32,21 +32,27 @@ public class TrafficInfoRepositoryImp implements TrafficInfoRepository{
     private final static String INDEX = "network_packet";
 
     @Override
-    public List<TrafficInfo> findByUserIDHostName(String userId, String hostName, String date) {
-        log.info(date);
+    public List<TrafficInfo> findTrafficInfo(String userId, String hostName, String date) {
         final Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1L));
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices(INDEX);
         searchRequest.scroll(scroll);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
-        if(date.isEmpty())
-            searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("user_id", userId))
+        if(date.isEmpty() && !hostName.isEmpty())
+            searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("user_id.keyword", userId))
                                                            .must(QueryBuilders.wildcardQuery("url",String.format("*%s*",hostName))));
+        else if(!date.isEmpty() && hostName.isEmpty()){
+            searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("user_id.keyword", userId))
+                    .must(QueryBuilders.rangeQuery("localdate").from(date).to(date)));
+        }else if(date.isEmpty() && hostName.isEmpty()){
+            searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("user_id.keyword", userId)));
+        }
         else
-            searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("user_id", userId))
+            searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("user_id.keyword", userId))
                     .must(QueryBuilders.wildcardQuery("url", String.format("*%s*",hostName)))
                     .must(QueryBuilders.rangeQuery("localdate").from(date).to(date)));
+        log.info(searchSourceBuilder.toString());
         searchSourceBuilder.size(15);
         searchRequest.source(searchSourceBuilder);
         List<TrafficInfo> trafficsInfo = new ArrayList<>();
@@ -75,6 +81,7 @@ public class TrafficInfoRepositoryImp implements TrafficInfoRepository{
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        trafficsInfo.removeIf(t -> t.getUrl().trim().isEmpty());
         return trafficsInfo;
     }
 

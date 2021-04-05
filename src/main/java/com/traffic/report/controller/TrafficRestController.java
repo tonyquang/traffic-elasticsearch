@@ -5,6 +5,7 @@ import com.traffic.report.model.Admin;
 import com.traffic.report.services.TrafficService;
 import com.traffic.report.util.HashUtil;
 import com.traffic.report.util.JwtUtil;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/v1")
 @Slf4j
+@Api( tags = "Traffic Rest API")
 public class TrafficRestController {
     @Autowired
     TrafficService trafficService;

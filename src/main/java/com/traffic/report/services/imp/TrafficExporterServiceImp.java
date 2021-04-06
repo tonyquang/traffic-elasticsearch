@@ -84,8 +84,8 @@ public class TrafficExporterServiceImp implements TrafficExporterService {
 
 
     @Override
-    public void exportCSV(HttpServletResponse response, String userid, String host, String time) {
-        trafficsInfo = trafficInfoRepository.findTrafficInfo(userid,host,time);
+    public void exportCSV(HttpServletResponse response, String userid, String host, String fromDate, String toDate) {
+        trafficsInfo = trafficInfoRepository.findTrafficInfo(userid,host,fromDate, toDate);
         buildExcelFile(response);
     }
 

@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TrafficInfoRespone {
+public class TrafficInfoResponse {
 
     @JsonProperty("user_id")
     private String userID;

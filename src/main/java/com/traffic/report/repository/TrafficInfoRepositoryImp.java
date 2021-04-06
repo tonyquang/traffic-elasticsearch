@@ -32,26 +32,29 @@ public class TrafficInfoRepositoryImp implements TrafficInfoRepository{
     static private final String INDEX = "network_packet";
 
     @Override
-    public List<TrafficInfo> findTrafficInfo(String userId, String hostName, String date) {
+    public List<TrafficInfo> findTrafficInfo(String userId, String hostName, String fromDate, String toDate) {
         final Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1L));
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices(INDEX);
         searchRequest.scroll(scroll);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
-        if(date.isEmpty() && !hostName.isEmpty())
+        if(!fromDate.isEmpty() && toDate.isEmpty())
+            toDate = fromDate;
+
+        if(fromDate.isEmpty() && !hostName.isEmpty())
             searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("user_id.keyword", userId))
                                                            .must(QueryBuilders.wildcardQuery("url",String.format("*%s*",hostName))));
-        else if(!date.isEmpty() && hostName.isEmpty()){
+        else if(!fromDate.isEmpty() && hostName.isEmpty()){
             searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("user_id.keyword", userId))
-                    .must(QueryBuilders.rangeQuery("localdate").from(date).to(date)));
-        }else if(date.isEmpty() && hostName.isEmpty()){
+                    .must(QueryBuilders.rangeQuery("localdate").from(fromDate).to(toDate)));
+        }else if(fromDate.isEmpty() && hostName.isEmpty()){
             searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("user_id.keyword", userId)));
         }
         else
             searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("user_id.keyword", userId))
                     .must(QueryBuilders.wildcardQuery("url", String.format("*%s*",hostName)))
-                    .must(QueryBuilders.rangeQuery("localdate").from(date).to(date)));
+                    .must(QueryBuilders.rangeQuery("localdate").from(fromDate).to(toDate)));
         log.info(searchSourceBuilder.toString());
         searchSourceBuilder.size(15);
         searchRequest.source(searchSourceBuilder);

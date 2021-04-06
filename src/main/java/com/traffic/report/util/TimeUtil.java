@@ -27,4 +27,15 @@ public class TimeUtil {
         return String.valueOf(getDateFromString(timeStamp).getHours());
     }
 
+    public Integer compareDate(String d1, String d2){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date date1 = sdf.parse(d1);
+            Date date2 = sdf.parse(d2);
+            return date1.compareTo(date2);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

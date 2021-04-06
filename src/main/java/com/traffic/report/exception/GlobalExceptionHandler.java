@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidInputException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse invalidInputException(InvalidInputException ex, WebRequest webRequest){
+    public ErrorResponse handleInvalidInputException(InvalidInputException ex, WebRequest webRequest){
         return ErrorResponse.builder()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .message(ex.getMessage())
@@ -34,9 +34,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(JwtException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse jwtException(JwtException ex, WebRequest webRequest){
+    public ErrorResponse handleJwtException(JwtException ex, WebRequest webRequest){
         return ErrorResponse.builder()
                 .statusCode(HttpStatus.FORBIDDEN.value())
+                .message(ex.getMessage())
+                .timestamp(new Date())
+                .description(webRequest.getDescription(false)).build();
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleAuthenticationException(AuthenticationException ex, WebRequest webRequest){
+        return ErrorResponse.builder()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .message(ex.getMessage())
                 .timestamp(new Date())
                 .description(webRequest.getDescription(false)).build();

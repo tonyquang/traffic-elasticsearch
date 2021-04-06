@@ -1,6 +1,6 @@
 package com.traffic.report.services.imp;
 
-import com.traffic.report.dto.TrafficInfoRespone;
+import com.traffic.report.dto.TrafficInfoResponse;
 import com.traffic.report.exception.ElasticsearchQueryException;
 import com.traffic.report.exception.InvalidInputException;
 import com.traffic.report.model.Traffic;
@@ -26,23 +26,24 @@ public class TrafficServiceImp implements TrafficService {
     TimeUtil timeUtil;
 
     @Override
-    public TrafficInfoRespone getAllTrafficAnUser(String userID, String hostName, String date) {
+    public TrafficInfoResponse getAllTrafficAnUser(String userID, String hostName, String fromDate, String toDate) {
         List<TrafficInfo> trafficsInfo;
         try {
-            trafficsInfo = trafficInfoRepository.findTrafficInfo(userID, hostName, date);
+            trafficsInfo = trafficInfoRepository.findTrafficInfo(userID, hostName, fromDate, toDate);
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new ElasticsearchQueryException("Execute query to Elasticsearch error " + ex.getMessage(), ex);
         }
         if (trafficsInfo.isEmpty())
-            return TrafficInfoRespone.builder()
+            return TrafficInfoResponse.builder()
                     .traffics(new ArrayList<>())
                     .count(0)
                     .userID(userID)
                     .build();
-        TrafficInfoRespone trafficInfoRespone = new TrafficInfoRespone();
+        TrafficInfoResponse trafficInfoResponse = new TrafficInfoResponse();
         List<Traffic> trafficList = new ArrayList<>();
-        trafficInfoRespone.setUserID(userID);
+        trafficInfoResponse.setUserID(userID);
+
         for (TrafficInfo ti : trafficsInfo) {
             trafficList.add(Traffic.builder()
                     .url(ti.getUrl())
@@ -50,18 +51,16 @@ public class TrafficServiceImp implements TrafficService {
                     .build()
             );
         }
-        trafficInfoRespone.setTraffics(trafficList);
-        trafficInfoRespone.setCount(trafficList.size());
-        return trafficInfoRespone;
+        trafficInfoResponse.setTraffics(trafficList);
+        trafficInfoResponse.setCount(trafficList.size());
+        return trafficInfoResponse;
     }
 
     @Override
-    public Map<String, List<Traffic>> getAllTrafficAnUserGroupByHour(String userID, String hostName, String date) throws InvalidInputException {
-        if(hostName.isEmpty())
-            throw  new InvalidInputException("Host name request param must be not empty!");
-        TrafficInfoRespone trafficInfoRespone = getAllTrafficAnUser(userID, hostName, date);
-        if (trafficInfoRespone == null) return null;
-        List<Traffic> trafficList = trafficInfoRespone.getTraffics();
+    public Map<String, List<Traffic>> getAllTrafficAnUserGroupByHour(String userID, String hostName,  String fromDate, String toDate) throws InvalidInputException {
+        TrafficInfoResponse trafficInfoResponse = getAllTrafficAnUser(userID, hostName, fromDate, toDate);
+        if (trafficInfoResponse == null) return null;
+        List<Traffic> trafficList = trafficInfoResponse.getTraffics();
         Map<String, List<Traffic>> trafficInfoGroupByDate =
                 trafficList.stream().collect(Collectors.groupingBy(traffic -> {
                     String strDateTime = traffic.getTimeStamp();

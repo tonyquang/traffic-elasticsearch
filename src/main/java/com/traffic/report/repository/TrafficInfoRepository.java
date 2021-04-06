@@ -4,6 +4,5 @@ import com.traffic.report.model.TrafficInfo;
 import java.util.List;
 
 public interface TrafficInfoRepository {
-
-    List<TrafficInfo> findTrafficInfo(String userId, String hostName,  String date);
+    List<TrafficInfo> findTrafficInfo(String userId, String hostName,  String fromDate, String toDate);
 }

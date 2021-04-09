@@ -1,7 +1,7 @@
 package com.traffic.report.services.imp;
 
-import com.traffic.report.model.TrafficInfo;
-import com.traffic.report.repository.TrafficInfoRepository;
+import com.traffic.report.model.Traffic;
+import com.traffic.report.repository.ElasticSearchTrafficInfoRepository;
 import com.traffic.report.services.TrafficExporterService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
@@ -23,11 +23,12 @@ import java.util.List;
 public class TrafficExporterServiceImp implements TrafficExporterService {
 
     @Autowired
-    TrafficInfoRepository trafficInfoRepository;
+    ElasticSearchTrafficInfoRepository elasticSearchTrafficInfoRepository;
 
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
-    private List<TrafficInfo> trafficsInfo;
+    private List<Traffic> traffics;
+    private String userid;
 
     private void writeHeaderLine() {
         sheet = workbook.createSheet("Traffic");
@@ -40,7 +41,7 @@ public class TrafficExporterServiceImp implements TrafficExporterService {
         fontTitle.setFontHeight(20);
         styleTitle.setFont(fontTitle);
 
-        createCell(title, 0, String.format("Traffic Report of %s", trafficsInfo.get(0).getUserid()), styleTitle);
+        createCell(title, 0, String.format("Traffic Report of %s", userid), styleTitle);
 
         Row row = sheet.createRow(1);
 
@@ -74,18 +75,18 @@ public class TrafficExporterServiceImp implements TrafficExporterService {
         font.setFontHeight(13);
         style.setFont(font);
 
-        for (TrafficInfo trafficInfo : trafficsInfo) {
+        for (Traffic traffic : traffics) {
             int columnCount = 0;
             Row row = sheet.createRow(rowCount++);
-            createCell(row, columnCount++, trafficInfo.getUrl(), style);
-            createCell(row, columnCount++, trafficInfo.getLocaldate(), style);
+            createCell(row, columnCount++, traffic.getUrl(), style);
+            createCell(row, columnCount++, traffic.getTimeStamp(), style);
         }
     }
 
 
     @Override
     public void exportCSV(HttpServletResponse response, String userid, String host, String fromDate, String toDate) {
-        trafficsInfo = trafficInfoRepository.findTrafficInfo(userid,host,fromDate, toDate);
+        traffics = elasticSearchTrafficInfoRepository.findTrafficInfo(userid,host,fromDate, toDate);
         buildExcelFile(response);
     }
 

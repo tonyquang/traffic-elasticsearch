@@ -16,10 +16,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+
 @RestController
 @RequestMapping("api/v1")
 @Slf4j
-@Api( tags = "Traffic Rest API")
+@Api(tags = "Traffic Rest API")
 public class TrafficRestController {
     @Autowired
     TrafficService trafficService;
@@ -40,16 +42,14 @@ public class TrafficRestController {
     public TrafficInfoResponse getTraffic(@PathVariable(value = "userid") @ApiParam(example = "PC-QUANPHAM$") String userid,
                                           @RequestParam(value = "host", defaultValue = "") @ApiParam(example = "facebook") String hostName,
                                           @RequestParam(value = "fromDate", defaultValue = "") @ApiParam(example = "2021-04-05") String fromDate,
-                                          @RequestParam(value = "toDate", defaultValue = "") @ApiParam(example = "2021-04-06") String toDate ) throws InvalidInputException {
-        if(!fromDate.isEmpty() && !toDate.isEmpty()){
-            if(timeUtil.compareDate(fromDate, toDate) > 0)
+                                          @RequestParam(value = "toDate", defaultValue = "") @ApiParam(example = "2021-04-06") String toDate) throws InvalidInputException {
+        if (!fromDate.isEmpty() && !toDate.isEmpty()) {
+            if (timeUtil.compareDate(fromDate, toDate) > 0)
                 throw new InvalidInputException("From date must be before To date");
         }
-
-        if(fromDate.isEmpty() && !toDate.isEmpty()){
+        if (fromDate.isEmpty() && !toDate.isEmpty()) {
             throw new InvalidInputException("You must input From date");
         }
-
         return trafficService.getAllTrafficAnUser(userid, hostName, fromDate, toDate);
     }
 

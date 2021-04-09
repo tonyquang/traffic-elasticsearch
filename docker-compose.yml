@@ -1,0 +1,20 @@
+version: '3'
+services:
+  app:
+    container_name: monitor_container
+    build: .
+    ports: 
+      - 8888:8888 
+    restart: on-failure
+    volumes:
+      - api:/usr/src/app/
+    networks:
+      - mynetworks
+
+volumes:
+  api:
+
+# Networks to be created to facilitate communication between containers
+networks:
+  mynetworks:
+    driver: bridge

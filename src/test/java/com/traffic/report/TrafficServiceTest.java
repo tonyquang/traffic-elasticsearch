@@ -3,8 +3,7 @@ package com.traffic.report;
 import com.traffic.report.dto.TrafficInfoResponse;
 import com.traffic.report.exception.InvalidInputException;
 import com.traffic.report.model.Traffic;
-import com.traffic.report.model.TrafficInfo;
-import com.traffic.report.repository.TrafficInfoRepository;
+import com.traffic.report.repository.ElasticSearchTrafficInfoRepository;
 import com.traffic.report.services.TrafficService;
 import com.traffic.report.util.TimeUtil;
 import org.assertj.core.api.Assertions;
@@ -39,7 +38,7 @@ public class TrafficServiceTest {
     TimeUtil timeUtil;
 
     @MockBean
-    TrafficInfoRepository trafficInfoRepository;
+    ElasticSearchTrafficInfoRepository elasticSearchTrafficInfoRepository;
 
     String host = "facebook";
     String userid = "quang.bui";
@@ -47,29 +46,21 @@ public class TrafficServiceTest {
     String toDate = "2021-04-05";
 
     TrafficInfoResponse expectedResponseGetAllTrafficAnUser;
-    List<TrafficInfo> trafficsInfo;
+    List<Traffic> traffics;
 
     Map<String, List<Traffic>> expectedResponseGetAllTrafficAnUserGroupByHour;
 
     @Before
     public void setup() {
-        trafficsInfo = new ArrayList<>();
-        trafficsInfo.add(TrafficInfo.builder().userid(userid).url("CONNECT edge-chat.facebook.com:443 HTTP/1.1").localdate(date+"T08:47:25.139+0700").build());
-        trafficsInfo.add(TrafficInfo.builder().userid(userid).url("CONNECT www.facebook.com:443 HTTP/1.1").localdate(date+"T08:48:24.039+0700").build());
-        trafficsInfo.add(TrafficInfo.builder().userid(userid).url("CONNECT CONNECT graph.facebook.com:443 HTTP/1.1").localdate(date+"T08:57:11.630+0700").build());
-        trafficsInfo.add(TrafficInfo.builder().userid(userid).url("CONNECT www.facebook.com:443 HTTP/1.1").localdate(date+"T09:00:39.431+0700").build());
-        trafficsInfo.add(TrafficInfo.builder().userid(userid).url("CONNECT www.facebook.com:443 HTTP/1.1").localdate(date+"T09:00:39.431+0700").build());
-        trafficsInfo.add(TrafficInfo.builder().userid(userid).url("CONNECT www.facebook.com:443 HTTP/1.1").localdate(date+"T10:00:39.431+0700").build());
-        trafficsInfo.add(TrafficInfo.builder().userid(userid).url("CONNECT www.facebook.com:443 HTTP/1.1").localdate(date+"T10:00:39.431+0700").build());
+        traffics = new ArrayList<>();
+        traffics.add(Traffic.builder().url("CONNECT edge-chat.facebook.com:443 HTTP/1.1").timeStamp(date+"T08:47:25.139+0700").build());
+        traffics.add(Traffic.builder().url("CONNECT www.facebook.com:443 HTTP/1.1").timeStamp(date+"T08:48:24.039+0700").build());
+        traffics.add(Traffic.builder().url("CONNECT CONNECT graph.facebook.com:443 HTTP/1.1").timeStamp(date+"T08:57:11.630+0700").build());
+        traffics.add(Traffic.builder().url("CONNECT www.facebook.com:443 HTTP/1.1").timeStamp(date+"T09:00:39.431+0700").build());
+        traffics.add(Traffic.builder().url("CONNECT www.facebook.com:443 HTTP/1.1").timeStamp(date+"T09:00:39.431+0700").build());
+        traffics.add(Traffic.builder().url("CONNECT www.facebook.com:443 HTTP/1.1").timeStamp(date+"T10:00:39.431+0700").build());
+        traffics.add(Traffic.builder().url("CONNECT www.facebook.com:443 HTTP/1.1").timeStamp(date+"T10:00:39.431+0700").build());
 
-        List<Traffic> traffics = new ArrayList<>();
-        for (TrafficInfo ti : trafficsInfo) {
-            traffics.add(Traffic.builder()
-                    .url(ti.getUrl())
-                    .timeStamp(ti.getLocaldate())
-                    .build()
-            );
-        }
         expectedResponseGetAllTrafficAnUser = TrafficInfoResponse.builder()
                 .traffics(traffics)
                 .userID(userid)
@@ -86,45 +77,45 @@ public class TrafficServiceTest {
 
     @After
     public void destroy(){
-        trafficsInfo.removeAll(trafficsInfo);
+        traffics.removeAll(traffics);
         expectedResponseGetAllTrafficAnUser = null;
     }
 
     @Test
     public void getTrafficWithFullParamRequestTest(){
-        when(trafficInfoRepository.findTrafficInfo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(trafficsInfo);
+        when(elasticSearchTrafficInfoRepository.findTrafficInfo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(traffics);
         TrafficInfoResponse actualResponse = trafficService.getAllTrafficAnUser(userid, host, date, toDate);
         assertThat(actualResponse, is(expectedResponseGetAllTrafficAnUser));
     }
 
     @Test
     public void getTrafficWithoutDateParamTest(){
-        when(trafficInfoRepository.findTrafficInfo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(trafficsInfo);
+        when(elasticSearchTrafficInfoRepository.findTrafficInfo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(traffics);
         TrafficInfoResponse actualResponse = trafficService.getAllTrafficAnUser(userid, host, "", "");
         assertThat(actualResponse, is(expectedResponseGetAllTrafficAnUser));
     }
 
     @Test
     public void getTrafficWithoutHostParamTest(){
-        when(trafficInfoRepository.findTrafficInfo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(trafficsInfo);
+        when(elasticSearchTrafficInfoRepository.findTrafficInfo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(traffics);
         TrafficInfoResponse actualResponse = trafficService.getAllTrafficAnUser(userid, "", date, toDate);
         assertThat(actualResponse, is(expectedResponseGetAllTrafficAnUser));
     }
 
     @Test
     public void getTrafficWithoutDateAndHostParamTest(){
-        when(trafficInfoRepository.findTrafficInfo(userid, "", "", ""))
-                .thenReturn(trafficsInfo);
+        when(elasticSearchTrafficInfoRepository.findTrafficInfo(userid, "", "", ""))
+                .thenReturn(traffics);
         TrafficInfoResponse actualResponse = trafficService.getAllTrafficAnUser(userid, "", "", "");
         assertThat(actualResponse, is(expectedResponseGetAllTrafficAnUser));
     }
 
     @Test
     public void getTrafficWithoutParamTest(){
-        when(trafficInfoRepository.findTrafficInfo("", "", "", ""))
+        when(elasticSearchTrafficInfoRepository.findTrafficInfo("", "", "", ""))
                 .thenReturn(new ArrayList<>());
         TrafficInfoResponse actualResponse = trafficService.getAllTrafficAnUser("", "", "", "");
         assertThat(actualResponse, is(TrafficInfoResponse.builder().traffics(new ArrayList<>()).count(0).userID("").build()));
@@ -132,8 +123,8 @@ public class TrafficServiceTest {
 
     @Test
     public void getAllTrafficAnUserGroupByHourFullParamTest() throws InvalidInputException {
-        when(trafficInfoRepository.findTrafficInfo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(trafficsInfo);
+        when(elasticSearchTrafficInfoRepository.findTrafficInfo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(traffics);
         Map<String, List<Traffic>> actualResponse = new HashMap<>();
         Assertions.assertThatCode(() -> trafficService.getAllTrafficAnUserGroupByHour(userid, host, date, toDate)).doesNotThrowAnyException();
         actualResponse = trafficService.getAllTrafficAnUserGroupByHour(userid, host, date, toDate);
@@ -142,8 +133,8 @@ public class TrafficServiceTest {
 
     @Test
     public void getAllTrafficAnUserGroupByHourWithoutDateParam() throws InvalidInputException{
-        when(trafficInfoRepository.findTrafficInfo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(trafficsInfo);
+        when(elasticSearchTrafficInfoRepository.findTrafficInfo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(traffics);
         Map<String, List<Traffic>> actualResponse = new HashMap<>();
         Assertions.assertThatCode(() -> trafficService.getAllTrafficAnUserGroupByHour(userid, host, "", "")).doesNotThrowAnyException();
         actualResponse = trafficService.getAllTrafficAnUserGroupByHour(userid, host, "", "");

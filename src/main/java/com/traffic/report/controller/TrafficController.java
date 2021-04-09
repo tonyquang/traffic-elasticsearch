@@ -2,6 +2,8 @@ package com.traffic.report.controller;
 
 import com.traffic.report.exception.InvalidInputException;
 import com.traffic.report.model.Traffic;
+import com.traffic.report.model.UserActivity;
+import com.traffic.report.services.DatabaseTrafficService;
 import com.traffic.report.services.TrafficExporterService;
 import com.traffic.report.services.TrafficService;
 import com.traffic.report.util.TimeUtil;
@@ -25,13 +27,16 @@ public class TrafficController {
     TrafficService trafficService;
 
     @Autowired
+    DatabaseTrafficService databaseTrafficService;
+
+    @Autowired
     TimeUtil timeUtil;
 
     @Autowired
     TrafficExporterService trafficExporterService;
 
-    @GetMapping("/traffic/line-chart/{userid}")
-    public String getLineChartTraffic(@PathVariable(value = "userid") String userid,
+    @GetMapping("/elastic/traffic/line-chart/{userid}")
+    public String getLineChartTrafficFromElasticSearch(@PathVariable(value = "userid") String userid,
                                       @RequestParam(value = "host", defaultValue = "") String hostName,
                                       @RequestParam(value = "fromDate", defaultValue = "") @ApiParam(example = "2021-04-05") String fromDate,
                                       @RequestParam(value = "toDate", defaultValue = "") @ApiParam(example = "2021-04-06") String toDate, Model model){
@@ -76,6 +81,54 @@ public class TrafficController {
         }
         return "lineChart";
     }
+
+    @GetMapping("/db/traffic/line-chart/{userid}")
+    public String getLineChartTrafficFromDatabase(@PathVariable(value = "userid") String userid,
+                                                       @RequestParam(value = "host", defaultValue = "") String hostName,
+                                                       @RequestParam(value = "month", defaultValue = "") @ApiParam(example = "03") String month,
+                                                       @RequestParam(value = "year", defaultValue = "") @ApiParam(example = "2021") String year, Model model) throws InvalidInputException {
+
+        month = month.length() < 2 ? "0" + month : month;
+        try {
+            int m = Integer.parseInt(month);
+            int y = Integer.parseInt(year);
+            if(m > 12 || m <1 || y < 0){
+                model.addAttribute("code", 400);
+                model.addAttribute("description", "Month/Year invalid range");
+                return "errorPage";
+            }
+        }catch (Exception e){
+            model.addAttribute("code", 400);
+            model.addAttribute("description", "Month/Year invalid range");
+            return "errorPage";
+        }
+
+        if(hostName.isEmpty()){
+            model.addAttribute("code", 400);
+            model.addAttribute("description", "Host name could not be empty!");
+            return "errorPage";
+        }
+
+        Map<String, List<UserActivity>> userActivityGroupByDate = databaseTrafficService.getAllTrafficGroupByDate(userid, hostName, year+"-"+month);
+
+        List<String> date = new ArrayList<>(userActivityGroupByDate.keySet());
+        Map<String, Integer> trafficMap = new LinkedHashMap<>();
+        Collections.sort(date);
+        for (int i = 1; i <= 31; i++){
+            String d = String.valueOf(i);
+            d = d.length() < 2 ? "0"+d : d;
+            trafficMap.put(d, userActivityGroupByDate.containsKey(d) ?
+                    userActivityGroupByDate.get(d)
+                            .stream()
+                            .max(Comparator.comparing(UserActivity::getCount))
+                            .orElseThrow(NoSuchElementException::new).getCount() : 0);
+        }
+        model.addAttribute("trafficMap", trafficMap);
+        model.addAttribute("userid", userid);
+        model.addAttribute("date", year+"-"+month);
+        return "lineChart";
+    }
+
 
     @GetMapping("/traffic/export-excel/{userid}")
     public void getCSVTrafficReport(@PathVariable(value = "userid") @ApiParam(example = "PC-QUANPHAM$") String userid,

@@ -15,6 +15,6 @@ public class Traffic {
     @JsonProperty("url")
     private String url;
 
-    @JsonProperty("time_stamp")
+    @JsonProperty("localdate")
     private String timeStamp;
 }
